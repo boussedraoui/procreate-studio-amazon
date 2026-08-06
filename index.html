@@ -2219,7 +2219,14 @@
 
 
 
-    <!-- Privacy Policy Modal (CSS + HTML + JS) -->
+
+
+
+
+
+
+
+    <!-- Privacy Policy Modal -->
 <style>
     #privacyModal {
         position: fixed !important;
@@ -2227,7 +2234,7 @@
         left: 0 !important;
         width: 100vw !important;
         height: 100vh !important;
-        background: rgba(0, 0, 0, 0.85) !important;
+        background: rgba(0,0,0,0.85) !important;
         z-index: 99999 !important;
         display: none !important;
         align-items: center !important;
@@ -2236,9 +2243,7 @@
         margin: 0 !important;
         padding: 0 !important;
     }
-    #privacyModal.active {
-        display: flex !important;
-    }
+    #privacyModal.active { display: flex !important; }
     #privacyModal .premium-modal-content {
         background: var(--surface, #1e1e1e);
         border: 1px solid var(--border, #3a3a3c);
@@ -2248,8 +2253,6 @@
         width: 90%;
         text-align: center;
         box-shadow: 0 10px 30px rgba(0,0,0,0.7);
-        position: relative;
-        z-index: 100000;
     }
 </style>
 
@@ -2258,9 +2261,8 @@
         <h2 style="color:var(--accent2);">Privacy Policy</h2>
         <div style="text-align:left; max-height:50vh; overflow-y:auto; color:var(--text); font-size:14px; line-height:1.6; margin-bottom:20px; padding:0 4px;">
             <p><strong>Effective Date:</strong> 02/08/2026</p>
-            <p>This application does not collect, use, store, or share any personal data or personally identifiable information (PII) from users.</p>
-            <p>No data is transmitted to external servers. All user content (drawings, settings, preferences, and drafts) is stored <strong>locally</strong> on your device only.</p>
-            <p>We do not use cookies, analytics, or tracking mechanisms.</p>
+            <p>This application does not collect, use, store, or share any personal data.</p>
+            <p>All content is stored locally on your device only.</p>
             <p>By using this application, you accept this policy.</p>
         </div>
         <button onclick="document.getElementById('privacyModal').classList.remove('active');" class="cancel-btn" style="width:100%;">Close</button>
@@ -2268,22 +2270,25 @@
 </div>
 
 <script>
-    (function() {
-        // Inject the Privacy Policy button right after the 3D toggle button
-        const toggle3DBtn = document.getElementById('toggle3D');
+    document.addEventListener('DOMContentLoaded', function() {
         const topbar = document.querySelector('.topbar');
-        if (toggle3DBtn && topbar && !document.getElementById('privacyPolicyBtn')) {
-            const privacyBtn = document.createElement('button');
-            privacyBtn.id = 'privacyPolicyBtn';
-            privacyBtn.textContent = 'Privacy Policy';
-            privacyBtn.style.cssText = 'background:transparent; border:none; color:#b0b0b0; font-size:12px; padding:0 10px; flex-shrink:0; cursor:pointer;';
-            // Insert directly after the 3D button
-            toggle3DBtn.insertAdjacentElement('afterend', privacyBtn);
-            privacyBtn.addEventListener('click', function() {
+        const toggle3D = document.getElementById('toggle3D');
+        if (topbar && !document.getElementById('privacyPolicyBtn')) {
+            const btn = document.createElement('button');
+            btn.id = 'privacyPolicyBtn';
+            btn.textContent = 'Privacy Policy';
+            btn.style.cssText = 'background:transparent; border:none; color:#b0b0b0; font-size:12px; padding:0 10px; flex-shrink:0; cursor:pointer;';
+            // Insert after toggle3D if it exists, otherwise append to topbar
+            if (toggle3D) {
+                toggle3D.insertAdjacentElement('afterend', btn);
+            } else {
+                topbar.appendChild(btn);
+            }
+            btn.addEventListener('click', function() {
                 document.getElementById('privacyModal').classList.add('active');
             });
         }
-    })();
+    });
 </script>
 </body>
 </html>
