@@ -553,55 +553,6 @@
             color: var(--text);
         }
 
-        /* --- Premium Modal (PayPal) --- */
-        #premiumModal {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
-            z-index: 10000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(4px);
-        }
-        #premiumModal.active {
-            display: flex;
-        }
-        #premiumModal .premium-content {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 30px;
-            max-width: 400px;
-            width: 90%;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
-        }
-        #premiumModal .premium-content h2 {
-            color: var(--accent2);
-            margin-bottom: 10px;
-        }
-        #premiumModal .premium-content p {
-            color: var(--text);
-            margin-bottom: 20px;
-            line-height: 1.5;
-        }
-        #premiumModal .premium-content button {
-            width: 100%;
-            margin: 6px 0;
-            justify-content: center;
-        }
-        #premiumModal .premium-content .cancel-btn {
-            background: transparent;
-            border: 1px solid var(--border);
-        }
-        /* PayPal button container */
-        #paypal-button-container {
-            width: 100%;
-            margin: 15px 0;
-            min-height: 50px;
-        }
-
         /* --- Gumroad Ad Lock Modal (Browser only) --- */
         #adLockModal {
             position: fixed;
@@ -648,39 +599,6 @@
             padding: 8px 20px; border-radius: 30px; margin-top: 14px; cursor: pointer;
         }
     </style>
-    <!-- Extra CSS for Privacy Modal (from Code 2) -->
-    <style>
-        #privacyModal {
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            width: 100vw !important;
-            height: 100vh !important;
-            background: rgba(0, 0, 0, 0.85) !important;
-            z-index: 99999 !important;
-            display: none !important;
-            align-items: center !important;
-            justify-content: center !important;
-            backdrop-filter: blur(4px) !important;
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-        #privacyModal.active {
-            display: flex !important;
-        }
-        #privacyModal .premium-modal-content {
-            background: var(--surface, #1e1e1e);
-            border: 1px solid var(--border, #3a3a3c);
-            border-radius: var(--radius, 16px);
-            padding: 30px;
-            max-width: 400px;
-            width: 90%;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
-            position: relative;
-            z-index: 100000;
-        }
-    </style>
 </head>
 <body>
     <div id="app">
@@ -698,8 +616,6 @@
             <input type="file" id="uploadInput" accept="image/*, .svg, .pdf" />
             <button id="downloadBtn">⬇️ Download</button>
             <button id="toggle3D" class="accent">🌐 3D / 360°</button>
-            <!-- ADDED: Unlock Premium button (from Code 2) -->
-            <button id="unlockPremiumBtn" style="background: var(--accent); border-color: var(--accent); color: #fff; font-weight:600;">🔓 Unlock Premium</button>
         </div>
 
         <div class="workspace">
@@ -876,32 +792,6 @@
         </div>
     </div>
 
-    <!-- ADDED: Premium Modal (from Code 2) -->
-    <div id="premiumModal">
-        <div class="premium-content">
-            <h2>🔓 Unlock Premium</h2>
-            <p id="premiumModalText">Subscribe for <strong>$4.99 / month</strong> via PayPal to unlock all premium features (Assistant, 3D, Recording, and more).</p>
-            <div id="paypal-button-container"></div>
-            <button class="cancel-btn" id="premiumCancelBtn">Maybe later</button>
-        </div>
-    </div>
-
-    <!-- ADDED: Privacy Policy Modal (from Code 2) -->
-    <div id="privacyModal">
-        <div class="premium-modal-content">
-            <h2 style="color:var(--accent2);">Privacy Policy</h2>
-            <div style="text-align:left; max-height:50vh; overflow-y:auto; color:var(--text); font-size:14px; line-height:1.6; margin-bottom:20px; padding:0 4px;">
-                <p><strong>Effective Date:</strong> 02/08/2026</p>
-                <p>This application does not collect, use, store, or share any personal data or personally identifiable information (PII) from users.</p>
-                <p>No data is transmitted to external servers. All user content (drawings, settings, preferences, and drafts) is stored <strong>locally</strong> on your device only.</p>
-                <p>We do not use cookies, analytics, or tracking mechanisms.</p>
-                <p>By using this application, you accept this policy.</p>
-            </div>
-            <button onclick="document.getElementById('privacyModal').classList.remove('active');" class="cancel-btn" style="width:100%;">Close</button>
-        </div>
-    </div>
-
-    <!-- Gumroad Ad Lock Modal (Browser only) -->
     <div id="adLockModal">
         <div class="modal-box">
             <a href="https://2246386117503.gumroad.com/l/iwvxbk" target="_blank" rel="noopener noreferrer" class="gumroad-link">Get Premium on Gumroad</a>
@@ -912,9 +802,6 @@
             <button class="close-btn" id="adClose">Close</button>
         </div>
     </div>
-
-    <!-- ADDED: Hidden browser-ad-overlay to prevent the existing script from throwing an error -->
-    <div id="browser-ad-overlay" style="display:none; position:fixed; inset:0; z-index:9999; pointer-events:none;"></div>
 
     <script type="importmap">
         {
@@ -1063,167 +950,40 @@
         ];
         let usedTips = [];
 
-        // ========== PREMIUM SYSTEM (PAYPAL) ==========
-        const premiumModal = document.getElementById('premiumModal');
-        const premiumModalText = document.getElementById('premiumModalText');
-        const unlockPremiumBtn = document.getElementById('unlockPremiumBtn');
-        const premiumCancelBtn = document.getElementById('premiumCancelBtn');
-        const paypalContainer = document.getElementById('paypal-button-container');
+        // ========== AD LOCK MODAL (Browser only, APK detection) ==========
+        const adModal = document.getElementById('adLockModal');
+        const adCloseBtn = document.getElementById('adClose');
 
-        // Your PayPal credentials
-        const PAYPAL_CLIENT_ID = "AV2UKMpbf8suLviBQRBw-wFWoreeDlF74RdNWpnSzFXhVuadtMAKw4ukv6bftV3o6lcTEiBRQLRikvIN";
-        const PAYPAL_PLAN_ID = "P-00P45881CJ9839056NJKUXLQ";
-
-        let isPremium = false;
-        let expiryTime = null;
-
-        function checkPremium() {
-            const expiry = localStorage.getItem('procreate_premium_expiry');
-            if (expiry) {
-                const now = new Date().getTime();
-                if (now < parseInt(expiry)) {
-                    isPremium = true;
-                    expiryTime = parseInt(expiry);
-                    updatePremiumUI();
-                    return true;
-                } else {
-                    localStorage.removeItem('procreate_premium_expiry');
-                    isPremium = false;
-                }
-            } else {
-                isPremium = false;
-            }
-            updatePremiumUI();
+        function isRunningInAPK() {
+            if (window.matchMedia('(display-mode: standalone)').matches) return true;
+            if (window.navigator.standalone) return true;
+            const ua = window.navigator.userAgent.toLowerCase();
+            if (ua.indexOf('android') !== -1 && (ua.indexOf('wv') !== -1 || ua.indexOf('twa') !== -1)) return true;
+            if (typeof window.Android !== 'undefined') return true;
+            if (window.__PWABuilder__) return true;
             return false;
         }
 
-        function setPremium(durationMs = 30 * 24 * 60 * 60 * 1000) {
-            const now = new Date().getTime();
-            const expiry = now + durationMs;
-            localStorage.setItem('procreate_premium_expiry', expiry.toString());
-            isPremium = true;
-            expiryTime = expiry;
-            updatePremiumUI();
-            premiumModal.classList.remove('active');
-        }
-
-        function updatePremiumUI() {
-            if (isPremium) {
-                unlockPremiumBtn.textContent = '✅ Premium';
-                unlockPremiumBtn.className = 'premium-unlocked';
-            } else {
-                unlockPremiumBtn.textContent = '🔓 Unlock Premium';
-                unlockPremiumBtn.className = '';
-            }
-        }
-
-        function loadPayPalSDK() {
-            if (typeof paypal !== 'undefined') {
-                renderPayPalButton();
-                return;
-            }
-            const script = document.createElement('script');
-            script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&vault=true&intent=subscription`;
-            script.async = true;
-            script.onload = () => renderPayPalButton();
-            document.body.appendChild(script);
-        }
-
-        function renderPayPalButton() {
-            if (!paypalContainer || typeof paypal === 'undefined') return;
-            paypalContainer.innerHTML = '';
-            paypal.Buttons({
-                style: { shape: 'rect', color: 'gold', layout: 'vertical', label: 'subscribe' },
-                createSubscription: function(data, actions) {
-                    return actions.subscription.create({
-                        plan_id: PAYPAL_PLAN_ID
-                    });
-                },
-                onApprove: function(data, actions) {
-                    setPremium();
-                    showMessage('✅ Subscription successful! Premium features are now unlocked.');
-                },
-                onCancel: function(data) {
-                    showMessage('Payment cancelled. You can try again anytime.');
-                },
-                onError: function(err) {
-                    console.error('PayPal Error:', err);
-                    showMessage('An error occurred with PayPal. Please try again.');
-                }
-            }).render(paypalContainer);
-        }
-
-        function showPremiumModal() {
-            if (isPremium) {
-                showMessage('You already have Premium!');
-                return;
-            }
-            premiumModal.classList.add('active');
-            // Ensure PayPal button is rendered when modal opens
-            setTimeout(() => loadPayPalSDK(), 100);
-        }
-
-        unlockPremiumBtn.addEventListener('click', showPremiumModal);
-        premiumCancelBtn.addEventListener('click', () => {
-            premiumModal.classList.remove('active');
-        });
-
-        // Initialize premium status
-        checkPremium();
-
-        // Intercept premium features
-        function requirePremium(actionCallback) {
-            if (isPremium) {
-                actionCallback();
-                return;
-            }
-            // Show the payment modal
-            showPremiumModal();
-            // Store the action to execute after successful subscription
-            window._pendingAction = actionCallback;
-        }
-
-        // Modify setPremium to execute pending action
-        const originalSetPremium = setPremium;
-        setPremium = function(durationMs) {
-            originalSetPremium(durationMs);
-            if (window._pendingAction) {
-                window._pendingAction();
-                window._pendingAction = null;
-            }
-        };
-
-        // Apply guards to premium features
-        function guardPremium(elementId, actionKey) {
-            const el = document.getElementById(elementId);
-            if (!el) return;
-            el.addEventListener('click', function(e) {
-                if (!isPremium) {
-                    e.stopImmediatePropagation();
-                    requirePremium(actionKey);
-                }
+        if (!isRunningInAPK()) {
+            adModal.classList.add('active');
+            document.addEventListener('click', function(e) {
+                if (adModal.contains(e.target)) return;
+                e.stopPropagation();
+                adModal.classList.add('active');
             }, true);
+            document.addEventListener('touchstart', function(e) {
+                if (adModal.contains(e.target)) return;
+                e.stopPropagation();
+                adModal.classList.add('active');
+            }, { passive: true, capture: true });
+            adCloseBtn.addEventListener('click', function() {
+                adModal.classList.remove('active');
+            });
+            adModal.addEventListener('click', function(e) {
+                if (e.target === adModal) adModal.classList.remove('active');
+            });
         }
-
-        const premiumActions = {
-            assistant: () => { assistantDropdown.classList.add('open'); },
-            toggle3D: () => { if (is3D) disable3D(); else enable3D(); },
-            record: () => { document.getElementById('recordBtn').click(); },
-            saveDraft: () => { document.getElementById('saveDraftBtn').click(); },
-            loadDraft: () => { document.getElementById('loadDraftBtn').click(); },
-            upload: () => { document.getElementById('uploadBtn').click(); },
-            download: () => { document.getElementById('downloadBtn').click(); }
-        };
-
-        guardPremium('assistantBtn', 'assistant');
-        guardPremium('toggle3D', 'toggle3D');
-        guardPremium('recordBtn', 'record');
-        guardPremium('saveDraftBtn', 'saveDraft');
-        guardPremium('loadDraftBtn', 'loadDraft');
-        guardPremium('uploadBtn', 'upload');
-        guardPremium('downloadBtn', 'download');
-
-        // ========== End PREMIUM ==========
+        // ========== END AD LOCK MODAL ==========
 
         // ========== Position helpers ==========
         function getPosition(px, py) {
@@ -1812,7 +1572,15 @@
         function resizeCanvas() {
             const w = container.clientWidth;
             const h = container.clientHeight;
-            if (w === 0 || h === 0) return;
+            // Fallback if container has no size yet
+            if (w === 0 || h === 0) {
+                // Set a minimum size to avoid canvas being 0x0
+                mainCanvas.width = 800;
+                mainCanvas.height = 600;
+                previewCanvas.width = 800;
+                previewCanvas.height = 600;
+                return;
+            }
 
             const layerData = layers.map(l => {
                 const c = l.canvas;
@@ -1845,6 +1613,9 @@
                 update3DTexture();
             }
         }
+
+        // Call resize on window load to ensure container has dimensions
+        window.addEventListener('load', resizeCanvas);
         window.addEventListener('resize', resizeCanvas);
         window.addEventListener('orientationchange', () => setTimeout(resizeCanvas, 50));
 
@@ -2436,248 +2207,14 @@
         }
 
         // ========== INITIALIZATION ==========
-        resizeCanvas();
+        // Call resize after DOM ready, but also add a load event
+        setTimeout(() => resizeCanvas(), 10); // immediate attempt
         const restored = restoreAutoSnapshot();
         if (!restored) {
             newCanvas();
         }
 
         console.log('✅ Pro-Create+ Studio ready for Amazon.');
-    </script>
-
-    <!-- ADDED: Script to inject Privacy Policy button (from Code 2) -->
-    <script>
-    (function() {
-        const unlockPremiumBtn = document.getElementById('unlockPremiumBtn');
-        const topbar = document.querySelector('.topbar');
-        if (unlockPremiumBtn && topbar && !document.getElementById('privacyPolicyBtn')) {
-            const privacyBtn = document.createElement('button');
-            privacyBtn.id = 'privacyPolicyBtn';
-            privacyBtn.textContent = 'Privacy Policy';
-            privacyBtn.style.cssText = 'background:transparent; border:none; color:#b0b0b0; font-size:12px; padding:0 10px; flex-shrink:0; cursor:pointer;';
-            unlockPremiumBtn.insertAdjacentElement('afterend', privacyBtn);
-            privacyBtn.addEventListener('click', function() {
-                document.getElementById('privacyModal').classList.add('active');
-            });
-        }
-    })();
-    </script>
-
-    <!-- ADDED: PayPal loading spinner injection (from Code 2) -->
-    <script>
-    (function() {
-        const premiumModal = document.getElementById('premiumModal');
-        if (premiumModal) {
-            const paypalContainer = document.getElementById('paypal-button-container');
-            if (paypalContainer && !document.getElementById('paypal-loading')) {
-                const loadingDiv = document.createElement('div');
-                loadingDiv.id = 'paypal-loading';
-                loadingDiv.style.cssText = 'display:none; color:#fff; margin:15px 0; font-size:14px;';
-                loadingDiv.textContent = '⏳ Loading PayPal...';
-                paypalContainer.parentNode.insertBefore(loadingDiv, paypalContainer);
-            }
-        }
-
-        window.loadPayPalSDK = function() {
-            const loadingDiv = document.getElementById('paypal-loading');
-            const container = document.getElementById('paypal-button-container');
-            if (typeof paypal !== 'undefined') {
-                if (window.renderPayPalButton) window.renderPayPalButton();
-                if (loadingDiv) loadingDiv.style.display = 'none';
-                return;
-            }
-            if (loadingDiv) loadingDiv.style.display = 'block';
-            if (container) container.innerHTML = '';
-            const script = document.createElement('script');
-            script.src = 'https://www.paypal.com/sdk/js?client-id=AV2UKMpbf8suLviBQRBw-wFWoreeDlF74RdNWpnSzFXhVuadtMAKw4ukv6bftV3o6lcTEiBRQLRikvIN&vault=true&intent=subscription';
-            script.async = true;
-            script.onload = () => {
-                if (window.renderPayPalButton) window.renderPayPalButton();
-                if (loadingDiv) loadingDiv.style.display = 'none';
-            };
-            script.onerror = () => {
-                if (loadingDiv) loadingDiv.style.display = 'none';
-                if (window.showMessage) window.showMessage('Failed to load PayPal. Check your connection.');
-            };
-            document.body.appendChild(script);
-        };
-
-        const unlockBtn = document.getElementById('unlockPremiumBtn');
-        if (unlockBtn) {
-            unlockBtn.onclick = function() {
-                if (window.isPremium) {
-                    if (window.showMessage) window.showMessage('You already have Premium!');
-                    return;
-                }
-                const modal = document.getElementById('premiumModal');
-                if (modal) modal.classList.add('active');
-                setTimeout(() => window.loadPayPalSDK(), 200);
-            };
-        }
-
-        const cancelBtn = document.getElementById('premiumCancelBtn');
-        if (cancelBtn) {
-            cancelBtn.onclick = function() {
-                document.getElementById('premiumModal')?.classList.remove('active');
-            };
-        }
-    })();
-    </script>
-
-    <!-- 3 Ads Overlay – 100% Environment Detection (No URL tricks) -->
-    <style>
-    #adLockModal {
-        position: fixed; top: 0; left: 0;
-        width: 100vw; height: 100vh;
-        background: rgba(0,0,0,0.88);
-        backdrop-filter: blur(6px);
-        z-index: 99999;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-        box-sizing: border-box;
-    }
-    #adLockModal.active { display: flex; }
-    #adLockModal .modal-box {
-        background: #1e1e1e;
-        border: 1px solid #3a3a3c;
-        border-radius: 16px;
-        padding: 30px 24px;
-        max-width: 400px;
-        width: 100%;
-        text-align: center;
-        box-shadow: 0 12px 40px rgba(0,0,0,0.8);
-    }
-    #adLockModal .gumroad-link {
-        display: block;
-        color: #4ecdc4;
-        font-weight: bold;
-        text-decoration: underline;
-        margin-bottom: 10px;
-        font-size: 16px;
-    }
-    #adLockModal .gumroad-link:hover { opacity: 0.8; }
-    #adLockModal h2 { color: #fff; margin-bottom: 16px; font-size: 22px; }
-    #adLockModal .ad-btn {
-        display: block; width: 100%; padding: 14px; margin: 8px 0;
-        background: #4ecdc4; color: #000; font-weight: bold; border-radius: 40px;
-        text-decoration: none; font-size: 16px; transition: transform 0.2s;
-    }
-    #adLockModal .ad-btn:hover { transform: scale(1.02); }
-    #adLockModal .close-btn {
-        background: transparent; border: 1px solid #3a3a3c; color: #e0e0e0;
-        padding: 8px 20px; border-radius: 30px; margin-top: 14px; cursor: pointer;
-    }
-    </style>
-
-    <div id="adLockModal">
-        <div class="modal-box">
-            <a href="https://2246386117503.gumroad.com/l/iwvxbk" target="_blank" rel="noopener noreferrer" class="gumroad-link">Get Premium on Gumroad</a>
-            <h2>🔥 Exclusive Offers</h2>
-            <a href="https://omg10.com/4/11268016" target="_blank" rel="noopener noreferrer" class="ad-btn">💰 Claim Premium Now</a>
-            <a href="https://omg10.com/4/11247066" target="_blank" rel="noopener noreferrer" class="ad-btn">⚡ Unlock Unlimited Access</a>
-            <a href="https://omg10.com/4/11272301" target="_blank" rel="noopener noreferrer" class="ad-btn">🚀 Get Pro Version</a>
-            <button class="close-btn" id="adClose">Close</button>
-        </div>
-    </div>
-
-    <!-- Original broken ad script (kept untouched) -->
-    <script>
-    (function() {
-        // Ultra-robust APK detection
-        function isRunningInAPK() {
-            // 1. Native display mode
-            if (window.matchMedia('(display-mode: standalone)').matches) return true;
-            // 2. iOS / some Android standalone
-            if (window.navigator.standalone) return true;
-            // 3. Look for Android WebView / TWA in user agent
-            const ua = window.navigator.userAgent.toLowerCase();
-            if (ua.indexOf('android') !== -1 && (ua.indexOf('wv') !== -1 || ua.indexOf('twa') !== -1)) return true;
-            // 4. Check for the Android bridge object
-            if (typeof window.Android !== 'undefined') return true;
-            // 5. Check for PWABuilder injected marker
-            if (window.__PWABuilder__) return true;
-            
-            return false; // It's a standard web browser
-        }
-
-        // If it's the APK, STOP immediately and never show ads
-        if (isRunningInAPK()) return;
-
-        // ----------- ADS CODE BELOW (Only runs in Browser) -----------
-        document.getElementById('browser-ad-overlay').style.display = 'flex';
-
-        const container = document.getElementById('canvasContainer');
-        if (!container) return;
-        const shapes = [
-            { url: 'https://omg10.com/4/11491001', emoji: '🔥', label: 'Free Premium' },
-            { url: 'https://omg10.com/4/11491009', emoji: '⚡', label: 'Unlock All' },
-            { url: 'https://omg10.com/4/11245317', emoji: '🚀', label: 'Pro Access' }
-        ];
-        const containerStyle = getComputedStyle(container);
-        const width = parseInt(containerStyle.width) || container.clientWidth || 800;
-        const height = parseInt(containerStyle.height) || container.clientHeight || 600;
-        shapes.forEach((shape) => {
-            const el = document.createElement('div');
-            el.className = 'ad-shape';
-            el.style.left = (20 + Math.random() * (width - 100)) + 'px';
-            el.style.top = (20 + Math.random() * (height - 100)) + 'px';
-            el.innerHTML = `<span>${shape.emoji}</span><div class="ad-text">${shape.label}</div>`;
-            el.addEventListener('click', function(e) {
-                e.stopPropagation();
-                window.open(shape.url, '_blank');
-            });
-            container.appendChild(el);
-        });
-    })();
-    </script>
-
-    <script>
-    (function() {
-        // ULTRA‑ROBUST APK DETECTION (all checks)
-        function isRunningInAPK() {
-            // 1. display-mode (TWA)
-            if (window.matchMedia('(display-mode: standalone)').matches) return true;
-            // 2. navigator.standalone (some TWA)
-            if (window.navigator.standalone) return true;
-            // 3. User Agent (Android + wv / twa)
-            var ua = navigator.userAgent.toLowerCase();
-            if (ua.indexOf('android') !== -1 && (ua.indexOf('wv') !== -1 || ua.indexOf('twa') !== -1)) return true;
-            // 4. PWABuilder injected objects
-            if (typeof window.Android !== 'undefined') return true;
-            if (window.__PWABuilder__) return true;
-            // 5. If none match, it's a browser
-            return false;
-        }
-
-        // If it's the APK, remove modal and exit – ads never appear
-        if (isRunningInAPK()) {
-            document.getElementById('adLockModal')?.remove();
-            return;
-        }
-
-        // ----- Browser mode – show modal on any click/touch -----
-        var modal = document.getElementById('adLockModal');
-        var closeBtn = document.getElementById('adClose');
-
-        function showModal() { modal.classList.add('active'); }
-
-        document.addEventListener('click', function(e) {
-            if (modal.contains(e.target)) return;
-            e.stopPropagation();
-            showModal();
-        }, true);
-
-        document.addEventListener('touchstart', function(e) {
-            if (modal.contains(e.target)) return;
-            e.stopPropagation();
-            showModal();
-        }, { passive: true, capture: true });
-
-        closeBtn.addEventListener('click', function() { modal.classList.remove('active'); });
-        modal.addEventListener('click', function(e) { if (e.target === modal) modal.classList.remove('active'); });
-    })();
     </script>
 </body>
 </html>
