@@ -1,27 +1,12 @@
-
 {
   "background_color": "#ffffff",
   "dir": "ltr",
   "display": "standalone",
-  "name": "Pro-Create+ Studio — 2D&3D/360°",
+  "name": "Pro-Create+ Studio — 2D&amp;amp;3D/360°",
   "orientation": "any",
   "scope": "/",
   "short_name": "Pro-Create+ 360",
   "start_url": "index.html",
   "theme_color": "#ffffff",
-  "lang": "en",
-  "icons": [
-    {
-      "src": "Pro-create+Studio-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "Pro-create+Studio.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    }
-  ]
+  "lang": "en"
 }
