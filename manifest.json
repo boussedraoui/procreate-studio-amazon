@@ -1,3 +1,4 @@
+
 {
   "background_color": "#ffffff",
   "dir": "ltr",
@@ -10,6 +11,12 @@
   "theme_color": "#ffffff",
   "lang": "en",
   "icons": [
+    {
+      "src": "Pro-create+Studio-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
     {
       "src": "Pro-create+Studio.png",
       "sizes": "512x512",
