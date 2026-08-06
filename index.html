@@ -1,15 +1,609 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
+<head>
 <link rel="manifest" href="manifest.json?v=1">
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     <title>Pro-Create+ Studio — 2D&3D/360°</title>
+    <style>
+        :root {
+            --bg: #121212;
+            --surface: #1e1e1e;
+            --surface2: #2a2a2e;
+            --border: #3a3a3c;
+            --text: #e0e0e0;
+            --accent: #ff6b6b;
+            --accent2: #4ecdc4;
+            --radius: 16px;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            overflow: hidden;
+        }
+        #app {
+            width: 100vw;
+            height: 100vh;
+            max-width: 1400px;
+            max-height: 900px;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg);
+            border-radius: 0;
+            overflow: hidden;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+            flex-shrink: 0;
+        }
+        .topbar::-webkit-scrollbar {
+            height: 4px;
+        }
+        .topbar::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 2px;
+        }
+
+        .app-title {
+            font-weight: 700;
+            font-size: 20px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            flex-shrink: 0;
+        }
+        button {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px 14px;
+            border-radius: 24px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        button:hover {
+            background: #38383d;
+        }
+        button.accent {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+            font-weight: 600;
+        }
+        button.active {
+            background: var(--accent2);
+            border-color: var(--accent2);
+            color: #000;
+        }
+        select {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px 12px;
+            border-radius: 24px;
+            font-size: 13px;
+            cursor: pointer;
+            outline: none;
+            flex-shrink: 0;
+        }
+
+        .workspace {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .panel {
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            overflow-y: auto;
+            z-index: 25;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 260px;
+            transition: transform 0.3s;
+        }
+        .left-panel {
+            left: 0;
+            transform: translateX(-100%);
+            border-right: 1px solid var(--border);
+        }
+        .right-panel {
+            right: 0;
+            transform: translateX(100%);
+            border-left: 1px solid var(--border);
+        }
+        .panel.open {
+            transform: translateX(0);
+        }
+
+        .panel-section {
+            background: var(--surface2);
+            border-radius: var(--radius);
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .panel-title {
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #b0b0b0;
+        }
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        .tool-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 8px 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            cursor: pointer;
+            color: #b0b0b0;
+            transition: 0.2s;
+        }
+        .tool-item.active {
+            background: var(--accent2);
+            border-color: var(--accent2);
+            color: #000;
+            transform: scale(1.02);
+        }
+        .tool-icon {
+            font-size: 22px;
+        }
+        input[type="color"] {
+            width: 36px;
+            height: 36px;
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            background: transparent;
+            cursor: pointer;
+            padding: 2px;
+        }
+        input[type="range"] {
+            width: 100%;
+            accent-color: var(--accent);
+        }
+        .slider-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .slider-row label {
+            font-size: 12px;
+            color: #b0b0b0;
+            min-width: 45px;
+        }
+        .slider-row span {
+            font-size: 12px;
+            color: var(--text);
+            min-width: 28px;
+            text-align: center;
+        }
+
+        .canvas-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: #2c2c2e;
+        }
+        canvas#mainCanvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            background: white;
+            touch-action: none;
+            border: none;
+            outline: none;
+        }
+        canvas#previewCanvas {
+            position: absolute;
+            pointer-events: none;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+        #threeContainer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+        }
+        .layer-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+        .layer-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #3a3a3c;
+            padding: 8px 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #fff;
+            border: 1px solid transparent;
+        }
+        .layer-item.active-layer {
+            border-color: var(--accent);
+            background: #555;
+        }
+        .layer-item .visibility-toggle {
+            margin-left: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .layer-actions {
+            display: flex;
+            gap: 4px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .fullscreen-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+            z-index: 200;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .fullscreen-overlay.active {
+            display: flex;
+        }
+        .fullscreen-canvas-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .controls-bar {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+            align-items: center;
+            gap: 10px;
+            background: rgba(30, 30, 30, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 10px 16px;
+            border-radius: 30px;
+            max-width: calc(100vw - 30px);
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+            /* FIXED: Force it to appear on top */
+            z-index: 9999 !important;
+        }
+        .controls-bar.visible {
+            display: flex !important;
+        }
+        .controls-bar label {
+            color: var(--text);
+            font-size: 12px;
+        }
+        #rotateSpeed {
+            width: 100px;
+            min-width: 80px;
+        }
+        #speedDisplay {
+            color: var(--text);
+            min-width: 32px;
+            text-align: center;
+        }
+
+        .assistant-dropdown {
+            position: fixed;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 16px;
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 300;
+            width: 320px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+        }
+        .assistant-dropdown.open {
+            display: flex;
+        }
+        .assistant-dropdown .section-title {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text);
+        }
+        .assistant-dropdown .row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .assistant-dropdown input,
+        .assistant-dropdown select,
+        .assistant-dropdown button {
+            padding: 6px 10px;
+            font-size: 12px;
+        }
+        .assistant-dropdown input[type="text"] {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+        .assistant-dropdown select {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+        .assistant-dropdown input[type="color"] {
+            width: 30px;
+            height: 30px;
+        }
+        .position-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+        }
+        .pos-btn {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 8px;
+            padding: 6px;
+            font-size: 11px;
+            cursor: pointer;
+            text-align: center;
+        }
+        .pos-btn.active {
+            background: var(--accent2);
+            color: #000;
+        }
+        .shape-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+        }
+        .shape-btn {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 8px;
+            padding: 6px;
+            font-size: 11px;
+            cursor: pointer;
+            text-align: center;
+        }
+        .shape-btn.active {
+            background: var(--accent2);
+            color: #000;
+        }
+        .tip-display {
+            background: var(--surface);
+            border-radius: 8px;
+            padding: 8px;
+            font-size: 12px;
+            color: var(--text);
+            min-height: 40px;
+        }
+        #closeAssistantDropdown {
+            align-self: flex-end;
+            background: var(--accent);
+            border: none;
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        #uploadInput {
+            display: none;
+        }
+
+        /* --- Message Modal (replaces alert) --- */
+        #messageModal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.75);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(3px);
+        }
+        #messageModal.active {
+            display: flex;
+        }
+        #messageModal .modal-content {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px 30px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+        }
+        #messageModal .modal-content p {
+            color: var(--text);
+            font-size: 15px;
+            line-height: 1.5;
+            margin: 0 0 20px 0;
+        }
+        #messageModal .modal-content button {
+            background: var(--accent2);
+            border: none;
+            color: #000;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 0 auto;
+        }
+
+        /* --- Confirm Modal (replaces confirm) --- */
+        #confirmModal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.75);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(3px);
+        }
+        #confirmModal.active {
+            display: flex;
+        }
+        #confirmModal .modal-content {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px 30px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+        }
+        #confirmModal .modal-content p {
+            color: var(--text);
+            font-size: 15px;
+            line-height: 1.5;
+            margin: 0 0 20px 0;
+        }
+        #confirmModal .modal-content .btn-row {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+        #confirmModal .modal-content .btn-row button {
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            flex: 1;
+        }
+        #confirmModal .modal-content .btn-row .btn-yes {
+            background: var(--accent2);
+            border: none;
+            color: #000;
+        }
+        #confirmModal .modal-content .btn-row .btn-no {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        /* --- Gumroad Ad Lock Modal (Browser only) --- */
+        #adLockModal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.88);
+            backdrop-filter: blur(6px);
+            z-index: 99999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        #adLockModal.active { display: flex; }
+        #adLockModal .modal-box {
+            background: #1e1e1e;
+            border: 1px solid #3a3a3c;
+            border-radius: 16px;
+            padding: 30px 24px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.8);
+        }
+        #adLockModal .gumroad-link {
+            display: block;
+            color: #4ecdc4;
+            font-weight: bold;
+            text-decoration: underline;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        #adLockModal .gumroad-link:hover { opacity: 0.8; }
+        #adLockModal h2 { color: #fff; margin-bottom: 16px; font-size: 22px; }
+        #adLockModal .ad-btn {
+            display: block; width: 100%; padding: 14px; margin: 8px 0;
+            background: #4ecdc4; color: #000; font-weight: bold; border-radius: 40px;
+            text-decoration: none; font-size: 16px; transition: transform 0.2s;
+        }
+        #adLockModal .ad-btn:hover { transform: scale(1.02); }
+        #adLockModal .close-btn {
+            background: transparent; border: 1px solid #3a3a3c; color: #e0e0e0;
+            padding: 8px 20px; border-radius: 30px; margin-top: 14px; cursor: pointer;
+        }
+    </style>
 </head>
 <body>
     <div id="app">
         <div class="topbar">
-            <span class="app-title">Procreate+ Studio</span>
+            <span class="app-title">Pro-Create+ Studio</span>
             <button id="assistantBtn">🤖 Assistant</button>
             <button id="newBtn">📄 New</button>
             <button id="fullscreenBtn" title="Fullscreen">⛶</button>
@@ -198,13 +792,14 @@
         </div>
     </div>
 
-    <!-- Premium Modal (PayPal) -->
-    <div id="premiumModal">
-        <div class="premium-content">
-            <h2>🔓 Unlock Premium</h2>
-            <p id="premiumModalText">Subscribe for <strong>$4.99 / month</strong> via PayPal to unlock all premium features (Assistant, 3D, Recording, and more).</p>
-            <div id="paypal-button-container"></div>
-            <button class="cancel-btn" id="premiumCancelBtn">Maybe later</button>
+    <div id="adLockModal">
+        <div class="modal-box">
+            <a href="https://2246386117503.gumroad.com/l/iwvxbk" target="_blank" rel="noopener noreferrer" class="gumroad-link">Get Premium on Gumroad</a>
+            <h2>🔥 Exclusive Offers</h2>
+            <a href="https://omg10.com/4/11268016" target="_blank" rel="noopener noreferrer" class="ad-btn">💰 Claim Premium Now</a>
+            <a href="https://omg10.com/4/11247066" target="_blank" rel="noopener noreferrer" class="ad-btn">⚡ Unlock Unlimited Access</a>
+            <a href="https://omg10.com/4/11272301" target="_blank" rel="noopener noreferrer" class="ad-btn">🚀 Get Pro Version</a>
+            <button class="close-btn" id="adClose">Close</button>
         </div>
     </div>
 
@@ -354,6 +949,41 @@
             "Duplicate a layer before making major changes as a backup."
         ];
         let usedTips = [];
+
+        // ========== AD LOCK MODAL (Browser only, APK detection) ==========
+        const adModal = document.getElementById('adLockModal');
+        const adCloseBtn = document.getElementById('adClose');
+
+        function isRunningInAPK() {
+            if (window.matchMedia('(display-mode: standalone)').matches) return true;
+            if (window.navigator.standalone) return true;
+            const ua = window.navigator.userAgent.toLowerCase();
+            if (ua.indexOf('android') !== -1 && (ua.indexOf('wv') !== -1 || ua.indexOf('twa') !== -1)) return true;
+            if (typeof window.Android !== 'undefined') return true;
+            if (window.__PWABuilder__) return true;
+            return false;
+        }
+
+        if (!isRunningInAPK()) {
+            adModal.classList.add('active');
+            document.addEventListener('click', function(e) {
+                if (adModal.contains(e.target)) return;
+                e.stopPropagation();
+                adModal.classList.add('active');
+            }, true);
+            document.addEventListener('touchstart', function(e) {
+                if (adModal.contains(e.target)) return;
+                e.stopPropagation();
+                adModal.classList.add('active');
+            }, { passive: true, capture: true });
+            adCloseBtn.addEventListener('click', function() {
+                adModal.classList.remove('active');
+            });
+            adModal.addEventListener('click', function(e) {
+                if (e.target === adModal) adModal.classList.remove('active');
+            });
+        }
+        // ========== END AD LOCK MODAL ==========
 
         // ========== Position helpers ==========
         function getPosition(px, py) {
@@ -1572,325 +2202,7 @@
             newCanvas();
         }
 
-        console.log('✅ Procreate+ Studio fully repaired and ready.');
+        console.log('✅ Pro-Create+ Studio ready for Amazon.');
     </script>
-    
-    <!-- CSS to force the modal to cover the whole screen -->
-<style>
-    #privacyModal {
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 100vw !important;
-        height: 100vh !important;
-        background: rgba(0, 0, 0, 0.85) !important;
-        z-index: 99999 !important;
-        display: none !important;
-        align-items: center !important;
-        justify-content: center !important;
-        backdrop-filter: blur(4px) !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-    #privacyModal.active {
-        display: flex !important;
-    }
-    #privacyModal .premium-modal-content {
-        background: var(--surface, #1e1e1e);
-        border: 1px solid var(--border, #3a3a3c);
-        border-radius: var(--radius, 16px);
-        padding: 30px;
-        max-width: 400px;
-        width: 90%;
-        text-align: center;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.7);
-        position: relative;
-        z-index: 100000;
-    }
-</style>
-
-<!-- Privacy Policy Modal -->
-<div id="privacyModal">
-    <div class="premium-modal-content">
-        <h2 style="color:var(--accent2);">Privacy Policy</h2>
-        <div style="text-align:left; max-height:50vh; overflow-y:auto; color:var(--text); font-size:14px; line-height:1.6; margin-bottom:20px; padding:0 4px;">
-            <p><strong>Effective Date:</strong> 02/08/2026</p>
-            <p>This application does not collect, use, store, or share any personal data or personally identifiable information (PII) from users.</p>
-            <p>No data is transmitted to external servers. All user content (drawings, settings, preferences, and drafts) is stored <strong>locally</strong> on your device only.</p>
-            <p>We do not use cookies, analytics, or tracking mechanisms.</p>
-            <p>By using this application, you accept this policy.</p>
-        </div>
-        <!-- Clicking this button closes the modal immediately -->
-        <button onclick="document.getElementById('privacyModal').classList.remove('active');" class="cancel-btn" style="width:100%;">Close</button>
-    </div>
-</div>
-
-<!-- Script to add the "Privacy Policy" button after the Premium button -->
-<script>
-(function() {
-    const unlockPremiumBtn = document.getElementById('unlockPremiumBtn');
-    const topbar = document.querySelector('.topbar');
-    if (unlockPremiumBtn && topbar && !document.getElementById('privacyPolicyBtn')) {
-        const privacyBtn = document.createElement('button');
-        privacyBtn.id = 'privacyPolicyBtn';
-        privacyBtn.textContent = 'Privacy Policy';
-        privacyBtn.style.cssText = 'background:transparent; border:none; color:#b0b0b0; font-size:12px; padding:0 10px; flex-shrink:0; cursor:pointer;';
-        // Insert the button right after the Premium button
-        unlockPremiumBtn.insertAdjacentElement('afterend', privacyBtn);
-        // Show modal when clicked
-        privacyBtn.addEventListener('click', function() {
-            document.getElementById('privacyModal').classList.add('active');
-        });
-    }
-})();
-</script>
-
-
-
-
-
-
-    
-
-
-
-
-
-
-    <script>
-(function() {
-    // Ultra-robust APK detection
-    function isRunningInAPK() {
-        // 1. Native display mode
-        if (window.matchMedia('(display-mode: standalone)').matches) return true;
-        // 2. iOS / some Android standalone
-        if (window.navigator.standalone) return true;
-        // 3. Look for Android WebView / TWA in user agent
-        const ua = window.navigator.userAgent.toLowerCase();
-        if (ua.indexOf('android') !== -1 && (ua.indexOf('wv') !== -1 || ua.indexOf('twa') !== -1)) return true;
-        // 4. Check for the Android bridge object
-        if (typeof window.Android !== 'undefined') return true;
-        // 5. Check for PWABuilder injected marker
-        if (window.__PWABuilder__) return true;
-        
-        return false; // It's a standard web browser
-    }
-
-    // If it's the APK, STOP immediately and never show ads
-    if (isRunningInAPK()) return;
-
-    // ----------- ADS CODE BELOW (Only runs in Browser) -----------
-    document.getElementById('browser-ad-overlay').style.display = 'flex';
-
-    const container = document.getElementById('canvasContainer');
-    if (!container) return;
-    const shapes = [
-        { url: 'https://omg10.com/4/11491001', emoji: '🔥', label: 'Free Premium' },
-        { url: 'https://omg10.com/4/11491009', emoji: '⚡', label: 'Unlock All' },
-        { url: 'https://omg10.com/4/11245317', emoji: '🚀', label: 'Pro Access' }
-    ];
-    const containerStyle = getComputedStyle(container);
-    const width = parseInt(containerStyle.width) || container.clientWidth || 800;
-    const height = parseInt(containerStyle.height) || container.clientHeight || 600;
-    shapes.forEach((shape) => {
-        const el = document.createElement('div');
-        el.className = 'ad-shape';
-        el.style.left = (20 + Math.random() * (width - 100)) + 'px';
-        el.style.top = (20 + Math.random() * (height - 100)) + 'px';
-        el.innerHTML = `<span>${shape.emoji}</span><div class="ad-text">${shape.label}</div>`;
-        el.addEventListener('click', function(e) {
-            e.stopPropagation();
-            window.open(shape.url, '_blank');
-        });
-        container.appendChild(el);
-    });
-})();
-</script>
-
-
-
-
-
-
-    <script>
-(function() {
-    // PayPal loading spinner injection
-    const premiumModal = document.getElementById('premiumModal');
-    if (premiumModal) {
-        const paypalContainer = document.getElementById('paypal-button-container');
-        if (paypalContainer && !document.getElementById('paypal-loading')) {
-            const loadingDiv = document.createElement('div');
-            loadingDiv.id = 'paypal-loading';
-            loadingDiv.style.cssText = 'display:none; color:#fff; margin:15px 0; font-size:14px;';
-            loadingDiv.textContent = '⏳ Loading PayPal...';
-            paypalContainer.parentNode.insertBefore(loadingDiv, paypalContainer);
-        }
-    }
-
-    // Override PayPal loading function
-    window.loadPayPalSDK = function() {
-        const loadingDiv = document.getElementById('paypal-loading');
-        const container = document.getElementById('paypal-button-container');
-        if (typeof paypal !== 'undefined') {
-            if (window.renderPayPalButton) window.renderPayPalButton();
-            if (loadingDiv) loadingDiv.style.display = 'none';
-            return;
-        }
-        if (loadingDiv) loadingDiv.style.display = 'block';
-        if (container) container.innerHTML = '';
-        const script = document.createElement('script');
-        script.src = 'https://www.paypal.com/sdk/js?client-id=AV2UKMpbf8suLviBQRBw-wFWoreeDlF74RdNWpnSzFXhVuadtMAKw4ukv6bftV3o6lcTEiBRQLRikvIN&vault=true&intent=subscription';
-        script.async = true;
-        script.onload = () => {
-            if (window.renderPayPalButton) window.renderPayPalButton();
-            if (loadingDiv) loadingDiv.style.display = 'none';
-        };
-        script.onerror = () => {
-            if (loadingDiv) loadingDiv.style.display = 'none';
-            if (window.showMessage) window.showMessage('Failed to load PayPal. Check your connection.');
-        };
-        document.body.appendChild(script);
-    };
-
-    // Re-bind the unlock button
-    const unlockBtn = document.getElementById('unlockPremiumBtn');
-    if (unlockBtn) {
-        unlockBtn.onclick = function() {
-            if (window.isPremium) {
-                if (window.showMessage) window.showMessage('You already have Premium!');
-                return;
-            }
-            const modal = document.getElementById('premiumModal');
-            if (modal) modal.classList.add('active');
-            setTimeout(() => window.loadPayPalSDK(), 200);
-        };
-    }
-
-    const cancelBtn = document.getElementById('premiumCancelBtn');
-    if (cancelBtn) {
-        cancelBtn.onclick = function() {
-            document.getElementById('premiumModal')?.classList.remove('active');
-        };
-    }
-})();
-</script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <!-- 3 Ads Overlay – 100% Environment Detection (No URL tricks) -->
-<style>
-#adLockModal {
-    position: fixed; top: 0; left: 0;
-    width: 100vw; height: 100vh;
-    background: rgba(0,0,0,0.88);
-    backdrop-filter: blur(6px);
-    z-index: 99999;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    box-sizing: border-box;
-}
-#adLockModal.active { display: flex; }
-#adLockModal .modal-box {
-    background: #1e1e1e;
-    border: 1px solid #3a3a3c;
-    border-radius: 16px;
-    padding: 30px 24px;
-    max-width: 400px;
-    width: 100%;
-    text-align: center;
-    box-shadow: 0 12px 40px rgba(0,0,0,0.8);
-}
-#adLockModal .gumroad-link {
-    display: block;
-    color: #4ecdc4;
-    font-weight: bold;
-    text-decoration: underline;
-    margin-bottom: 10px;
-    font-size: 16px;
-}
-#adLockModal .gumroad-link:hover { opacity: 0.8; }
-#adLockModal h2 { color: #fff; margin-bottom: 16px; font-size: 22px; }
-#adLockModal .ad-btn {
-    display: block; width: 100%; padding: 14px; margin: 8px 0;
-    background: #4ecdc4; color: #000; font-weight: bold; border-radius: 40px;
-    text-decoration: none; font-size: 16px; transition: transform 0.2s;
-}
-#adLockModal .ad-btn:hover { transform: scale(1.02); }
-#adLockModal .close-btn {
-    background: transparent; border: 1px solid #3a3a3c; color: #e0e0e0;
-    padding: 8px 20px; border-radius: 30px; margin-top: 14px; cursor: pointer;
-}
-</style>
-
-<div id="adLockModal">
-    <div class="modal-box">
-        <a href="https://2246386117503.gumroad.com/l/iwvxbk" target="_blank" rel="noopener noreferrer" class="gumroad-link">Get Premium on Gumroad</a>
-        <h2>🔥 Exclusive Offers</h2>
-        <a href="https://omg10.com/4/11268016" target="_blank" rel="noopener noreferrer" class="ad-btn">💰 Claim Premium Now</a>
-        <a href="https://omg10.com/4/11247066" target="_blank" rel="noopener noreferrer" class="ad-btn">⚡ Unlock Unlimited Access</a>
-        <a href="https://omg10.com/4/11272301" target="_blank" rel="noopener noreferrer" class="ad-btn">🚀 Get Pro Version</a>
-        <button class="close-btn" id="adClose">Close</button>
-    </div>
-</div>
-
-<script>
-(function() {
-    // ----- ULTRA‑ROBUST APK DETECTION (all checks) -----
-    function isRunningInAPK() {
-        // 1. display-mode (TWA)
-        if (window.matchMedia('(display-mode: standalone)').matches) return true;
-        // 2. navigator.standalone (some TWA)
-        if (window.navigator.standalone) return true;
-        // 3. User Agent (Android + wv / twa)
-        var ua = navigator.userAgent.toLowerCase();
-        if (ua.indexOf('android') !== -1 && (ua.indexOf('wv') !== -1 || ua.indexOf('twa') !== -1)) return true;
-        // 4. PWABuilder injected objects
-        if (typeof window.Android !== 'undefined') return true;
-        if (window.__PWABuilder__) return true;
-        // 5. If none match, it's a browser
-        return false;
-    }
-
-    // If it's the APK, remove modal and exit – ads never appear
-    if (isRunningInAPK()) {
-        document.getElementById('adLockModal')?.remove();
-        return;
-    }
-
-    // ----- Browser mode – show modal on any click/touch -----
-    var modal = document.getElementById('adLockModal');
-    var closeBtn = document.getElementById('adClose');
-
-    function showModal() { modal.classList.add('active'); }
-
-    document.addEventListener('click', function(e) {
-        if (modal.contains(e.target)) return;
-        e.stopPropagation();
-        showModal();
-    }, true);
-
-    document.addEventListener('touchstart', function(e) {
-        if (modal.contains(e.target)) return;
-        e.stopPropagation();
-        showModal();
-    }, { passive: true, capture: true });
-
-    closeBtn.addEventListener('click', function() { modal.classList.remove('active'); });
-    modal.addEventListener('click', function(e) { if (e.target === modal) modal.classList.remove('active'); });
-})();
-</script>
 </body>
 </html>
