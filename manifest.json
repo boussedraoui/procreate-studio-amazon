@@ -1,8 +1,9 @@
+
 {
   "background_color": "#ffffff",
   "dir": "ltr",
   "display": "standalone",
-  "name": "Pro-Create+ Studio — 2D&3D/360°",
+  "name": "Pro-Create+ Studio — 2D&amp;3D/360°",
   "orientation": "any",
   "scope": "/",
   "short_name": "Pro-Create+ 360",
@@ -11,7 +12,7 @@
   "lang": "en",
   "icons": [
     {
-      "src": "Pro-create+Studio.png",
+      "src": "launchericon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
